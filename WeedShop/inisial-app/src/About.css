@@ -1,0 +1,235 @@
+/* General Page Styling */
+.about-page {
+    display: flex;
+    flex-direction: column; /* Ensures content starts from the top */
+    justify-content: flex-start; /* Aligns content at the top */
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to right, #2c3e50, #4ca1af);
+    padding: 40px;
+    max-height: 0dvh;
+}
+
+/* Main Content Box */
+.about-content {
+    max-width: 1200px;
+    text-align: center;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+    width: 100%;
+}
+
+/* Sections (Values, Reviews, Order Steps, FAQ) */
+.values, .reviews, .order-steps, .faq {
+    margin-top: 30px;
+    padding: 25px;
+    background: #ecf0f1;
+    border-radius: 10px;
+    text-align: left;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Categories Section */
+.categories {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap; /* Ensures responsiveness */
+}
+
+/* Individual Category Boxes */
+.category {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 30%;
+    min-width: 250px;
+    text-align: center;
+    transition: 0.3s ease-in-out;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.category:hover {
+    transform: scale(1.05);
+    background: #d1f2eb;
+}
+
+/* Category Images */
+.category img {
+    width: 400px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Image Hover Effect */
+
+
+/* Customer Reviews Section */
+.reviews h2 {
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.reviews h2::before {
+    content: "⭐"; /* Star icon for aesthetics */
+    margin-right: 10px;
+}
+
+.reviews p {
+    font-size: 16px;
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    align-items: center;
+}
+
+/* Buttons - Aligned in a Row */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Buttons */
+.button-primary, .button-secondary {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    flex: 1;
+    max-width: 200px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Button Colors */
+.button-primary {
+    background: #3498db;
+    color: white;
+}
+
+.button-primary:hover {
+    background: #2980b9;
+}
+
+.button-secondary {
+    background: #e74c3c;
+    color: white;
+}
+
+.button-secondary:hover {
+    background: #c0392b;
+}
+/* 📞 Contact Us Section */
+.contact-us {
+    margin-top: 40px;
+    padding: 25px;
+    background: #f7f9fc;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.contact-us h2 {
+    font-size: 22px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.contact-us h2::before {
+    content: "📞"; /* Phone emoji */
+    font-size: 24px;
+}
+
+.contact-us p {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Contact List */
+.contact-us ul {
+    list-style: none; /* Removes bullet points */
+    padding: 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.contact-us li {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.contact-us li::before {
+    font-size: 18px;
+}
+
+/* Contact Icons */
+.contact-us li:nth-child(1)::before {
+    content: "📍"; /* Location Pin */
+}
+
+.contact-us li:nth-child(2)::before {
+    content: "📧"; /* Email */
+}
+
+.contact-us li:nth-child(3)::before {
+    content: "📞"; /* Phone */
+}
+
+.contact-us li:nth-child(4)::before {
+    content: "💬"; /* Live Chat */
+}
+
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+    .categories {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .category {
+        width: 80%;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+
+    .button-primary, .button-secondary {
+        max-width: 100%;
+    }
+
+    .about-content {
+        padding: 25px;
+    }
+}
