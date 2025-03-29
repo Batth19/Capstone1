@@ -28,6 +28,50 @@ const ProductPage = () => {
     fetchProduct();
   }, [id]);
 
+  useEffect(() => {
+    const loginId = localStorage.getItem("login_id");
+    if (!loginId) return;
+
+    const fetchCart = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/cart/${loginId}`);
+        const data = await response.json();
+        setCart(data);
+        localStorage.setItem(`cart_${loginId}`, JSON.stringify(data));
+      } catch (error) {
+        console.error("❌ Failed to fetch cart from backend:", error);
+      }
+    };
+
+    fetchCart();
+  }, []);
+
+  const saveCartToLocalStorage = (updatedCart) => {
+    const loginId = localStorage.getItem("login_id");
+    if (loginId) {
+      localStorage.setItem(`cart_${loginId}`, JSON.stringify(updatedCart));
+    }
+  };
+
+  const syncCartItemWithBackend = async (item) => {
+    const loginId = localStorage.getItem("login_id");
+    if (!loginId) return;
+
+    try {
+      await fetch("http://localhost:8080/cart/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: { id: parseInt(loginId) },
+          product: { id: item.product ? item.product.id : item.id },
+          quantity: item.quantity,
+        }),
+      });
+    } catch (error) {
+      console.error("❌ Failed to sync cart item with backend:", error);
+    }
+  };
+
   const addToCart = (product) => {
     const loginId = localStorage.getItem("login_id");
     if (!loginId) {
@@ -35,15 +79,65 @@ const ProductPage = () => {
       navigate("/login");
       return;
     }
-    setCart((prevCart) => [...prevCart, product]);
+
+    const existingItem = cart.find((item) => item.product?.id === product.id || item.id === product.id);
+    let updatedCart;
+
+    if (existingItem) {
+      updatedCart = cart.map((item) =>
+        (item.product?.id === product.id || item.id === product.id)
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      );
+    } else {
+      updatedCart = [...cart, { ...product, quantity: 1 }];
+    }
+
+    setCart(updatedCart);
+    saveCartToLocalStorage(updatedCart);
+    syncCartItemWithBackend({ ...product, quantity: existingItem ? existingItem.quantity + 1 : 1 });
+
     alert(`${product.name} added to cart!`);
+  };
+
+  const updateQuantity = (productId, change) => {
+    const updatedCart = cart.map((item) => {
+      const itemId = item.product?.id || item.id;
+      return itemId === productId
+        ? { ...item, quantity: Math.max(1, item.quantity + change) }
+        : item;
+    });
+
+    setCart(updatedCart);
+    saveCartToLocalStorage(updatedCart);
+
+    const updatedItem = updatedCart.find((item) => (item.product?.id || item.id) === productId);
+    if (updatedItem) {
+      syncCartItemWithBackend(updatedItem);
+    }
+  };
+
+  const removeFromCart = async (productId) => {
+    const itemToRemove = cart.find((item) => (item.product?.id || item.id) === productId);
+    if (!itemToRemove) return;
+
+    try {
+      await fetch(`http://localhost:8080/cart/remove/${itemToRemove.id}`, {
+        method: "DELETE",
+      });
+    } catch (error) {
+      console.error("❌ Failed to delete from backend:", error);
+    }
+
+    const updatedCart = cart.filter((item) => (item.product?.id || item.id) !== productId);
+    setCart(updatedCart);
+    saveCartToLocalStorage(updatedCart);
   };
 
   if (!product) return <p>Loading...</p>;
 
   return (
     <div className="product-page">
-      {/* Navigation Bar */}
       <div className="top-bar">
         <button className="button button-primary" onClick={() => navigate("/profile")}>User Profile</button>
         <button className="button button-warning" onClick={() => setIsCartOpen(true)}>
@@ -51,7 +145,6 @@ const ProductPage = () => {
         </button>
       </div>
 
-      {/* Product Details */}
       <button className="button button-primary" onClick={() => navigate(-1)}>Back</button>
       <h1>{product.name}</h1>
       <img src={product.image_url} alt={product.name} className="product-image" />
@@ -59,7 +152,6 @@ const ProductPage = () => {
       <p><strong>Price:</strong> ${product.price}</p>
       <p><strong>Stock:</strong> {product.stock_quantity}</p>
 
-      {/* THC and CBD Levels with Progress Bars */}
       <div className="thc-cbd-levels">
         <div className="thc-cbd-row">
           <p><strong>THC:</strong> {product.thc}%</p>
@@ -77,7 +169,6 @@ const ProductPage = () => {
 
       <button className="button button-success" onClick={() => addToCart(product)}>Add to Cart</button>
 
-      {/* Recommended Products */}
       <h2>Recommended Products</h2>
       <div className="recommendations-grid">
         {recommendations.map((rec) => (
@@ -98,13 +189,28 @@ const ProductPage = () => {
               <p>Your cart is empty.</p>
             ) : (
               <div className="cart-content">
-                {cart.map((item, index) => (
-                  <div key={index}>
-                    <strong>{item.name}</strong> - ${item.price}
-                  </div>
-                ))}
+                {cart.map((item) => {
+                  const productId = item.product?.id || item.id;
+                  const productName = item.product?.name || item.name;
+                  const price = item.product?.price || item.price;
+                  return (
+                    <div key={productId} className="cart-item">
+                      <strong>{productName}</strong> - ${price} × {item.quantity}
+                      <div className="cart-buttons">
+                        <button onClick={() => updateQuantity(productId, -1)}>-</button>
+                        <button onClick={() => updateQuantity(productId, 1)}>+</button>
+                        <button onClick={() => removeFromCart(productId)}>❌</button>
+                      </div>
+                    </div>
+                  );
+                })}
                 <hr />
-                <p className="cart-total"><strong>Total:</strong> ${cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</p>
+                <p className="cart-total">
+                  <strong>Total:</strong> ${cart.reduce((sum, item) => {
+                    const price = item.product?.price || item.price;
+                    return sum + price * item.quantity;
+                  }, 0).toFixed(2)}
+                </p>
               </div>
             )}
             <div className="modal-buttons">
